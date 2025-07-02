@@ -1,0 +1,35 @@
+# Ignore uploads and sensitive data
+uploads/
+student_photos/
+*.env
+config.php
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Ignore IDE/project files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore dependencies
+vendor/
+node_modules/
+
+# Ignore log files
+*.log
+error_log
+access_log
+
+# Ignore temporary files
+*.tmp
+*.temp
+*.cache
+
+# Ignore backup files
+*.bak
+*.backup
+*.sql.bak 

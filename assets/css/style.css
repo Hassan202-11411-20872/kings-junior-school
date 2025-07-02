@@ -1,0 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap');
+
+body {
+    font-family: 'Nunito', Arial, sans-serif;
+    background: linear-gradient(120deg, #e3f2fd 0%, #ffffff 100%);
+    color: #222;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar {
+    border-radius: 0 0 24px 24px;
+    box-shadow: 0 4px 24px rgba(25, 118, 210, 0.08);
+    transition: box-shadow 0.3s;
+}
+.navbar .navbar-brand span {
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+}
+
+.hero-section {
+    background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
+    color: #fff;
+    border-radius: 0 0 40px 40px;
+    box-shadow: 0 8px 32px rgba(25, 118, 210, 0.2);
+    animation: fadeInDown 1s;
+}
+
+.card {
+    border-radius: 20px;
+    box-shadow: 0 4px 24px rgba(25, 118, 210, 0.10);
+    transition: transform 0.2s, box-shadow 0.2s;
+    background: #fff;
+}
+.card:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 8px 32px rgba(25, 118, 210, 0.18);
+}
+
+.btn-primary, .btn-outline-primary {
+    border-radius: 30px;
+    font-weight: 700;
+    padding: 0.6rem 2rem;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.10);
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.btn-primary:hover, .btn-outline-primary:hover {
+    background: #1565c0;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(25, 118, 210, 0.18);
+}
+
+.footer {
+    background: linear-gradient(90deg, #1976d2 0%, #42a5f5 100%);
+    color: #fff;
+    border-radius: 40px 40px 0 0;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+    box-shadow: 0 -4px 24px rgba(25, 118, 210, 0.1);
+    animation: fadeInUp 1s;
+}
+
+.about-section {
+    background: #f5faff;
+    border-radius: 24px;
+    margin: 2rem auto;
+    box-shadow: 0 2px 12px rgba(25, 118, 210, 0.06);
+    max-width: 900px;
+}
+
+/* Animations */
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes bounceIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    60% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 2rem 1rem;
+    }
+    .about-section {
+        margin: 1rem 0.5rem;
+        padding: 1rem;
+    }
+    .navbar .navbar-brand span {
+        font-size: 1.1rem;
+    }
+} 
