@@ -14,6 +14,9 @@ $stmt = $pdo->prepare($query);
 $stmt->execute($params);
 $subjects = $stmt->fetchAll();
 ?>
+<div class="no-print my-3">
+    <a href="dashboard.php" class="btn btn-secondary">&larr; Back to Dashboard</a>
+</div>
 <div class="container py-5">
     <h2 class="mb-4 text-primary">Subjects</h2>
     <div class="mb-3">

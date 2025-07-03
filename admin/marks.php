@@ -39,6 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['marks'])) {
     $success = 'Marks saved successfully!';
 }
 ?>
+<div class="no-print my-3">
+    <a href="dashboard.php" class="btn btn-secondary">&larr; Back to Dashboard</a>
+</div>
 <div class="container py-5">
     <h2 class="mb-4 text-primary">Marks Entry</h2>
     <?php if ($success): ?><div class="alert alert-success"><?php echo $success; ?></div><?php endif; ?>

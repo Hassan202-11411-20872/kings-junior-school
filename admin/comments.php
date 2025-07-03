@@ -3,6 +3,9 @@ include '../includes/header.php';
 require_once '../includes/db.php';
 $comments = $pdo->query('SELECT * FROM comments ORDER BY min_marks ASC')->fetchAll();
 ?>
+<div class="no-print my-3">
+    <a href="dashboard.php" class="btn btn-secondary">&larr; Back to Dashboard</a>
+</div>
 <div class="container py-5">
     <h2 class="mb-4 text-primary">Comments (Auto/Custom)</h2>
     <div class="mb-3">

@@ -3,6 +3,9 @@ include '../includes/header.php';
 require_once '../includes/db.php';
 $grading = $pdo->query('SELECT * FROM grading_scale ORDER BY min_mark DESC')->fetchAll();
 ?>
+<div class="no-print my-3">
+    <a href="dashboard.php" class="btn btn-secondary">&larr; Back to Dashboard</a>
+</div>
 <div class="container py-5">
     <h2 class="mb-4 text-primary">Grading Scale</h2>
     <div class="mb-3">
