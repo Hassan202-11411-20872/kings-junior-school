@@ -16,18 +16,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $parent_name = trim($_POST['parent_name']);
     $parent_phone = trim($_POST['parent_phone']);
     $address = trim($_POST['address']);
-    $photo_path = '';
-    if (!empty($_FILES['photo']['name'])) {
-        $ext = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
-        $photo_path = 'uploads/students/' . $admission_number . '.' . $ext;
-        move_uploaded_file($_FILES['photo']['tmp_name'], '../' . $photo_path);
-    }
-    $stmt = $pdo->prepare('INSERT INTO students (admission_number, full_name, class_id, stream, photo_path, dob, gender, parent_name, parent_phone, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-    try {
-        $stmt->execute([$admission_number, $full_name, $class_id, $stream, $photo_path, $dob, $gender, $parent_name, $parent_phone, $address]);
-        $success = 'Student added successfully!';
-    } catch (PDOException $e) {
-        $error = 'Error: ' . $e->getMessage();
+    
+    // Check if admission number already exists
+    $check_stmt = $pdo->prepare('SELECT id FROM students WHERE admission_number = ?');
+    $check_stmt->execute([$admission_number]);
+    if ($check_stmt->fetch()) {
+        $error = 'Error: Admission number "' . htmlspecialchars($admission_number) . '" already exists. Please use a different admission number.';
+    } else {
+        $photo_path = '';
+        if (!empty($_FILES['photo']['name'])) {
+            $ext = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
+            $photo_path = 'uploads/students/' . $admission_number . '.' . $ext;
+            move_uploaded_file($_FILES['photo']['tmp_name'], '../' . $photo_path);
+        }
+        $stmt = $pdo->prepare('INSERT INTO students (admission_number, full_name, class_id, stream, photo_path, dob, gender, parent_name, parent_phone, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        try {
+            $stmt->execute([$admission_number, $full_name, $class_id, $stream, $photo_path, $dob, $gender, $parent_name, $parent_phone, $address]);
+            $success = 'Student added successfully!';
+        } catch (PDOException $e) {
+            $error = 'Error: ' . $e->getMessage();
+        }
     }
 }
 ?>

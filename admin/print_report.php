@@ -74,7 +74,7 @@ if ($class) {
     <?php foreach ($students as $student): ?>
     <div class="report-card">
         <div class="d-flex align-items-center mb-3">
-            <img src="/<?php echo $student['photo_path'] ?: 'assets/images/logo-e.png'; ?>" class="school-logo me-3" alt="Student Photo">
+                            <img src="../<?php echo $student['photo_path'] ?: 'assets/images/logo-e.png'; ?>" class="school-logo me-3" alt="Student Photo">
             <div>
                 <h4 class="mb-0">KINGS JUNIOR SCHOOL</h4>
                 <div class="text-muted">STUDENTS REPORT CARD GENERATION SYSTEM</div>

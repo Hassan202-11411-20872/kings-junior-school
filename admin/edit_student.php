@@ -24,22 +24,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $parent_name = trim($_POST['parent_name']);
     $parent_phone = trim($_POST['parent_phone']);
     $address = trim($_POST['address']);
-    $photo_path = $student['photo_path'];
-    if (!empty($_FILES['photo']['name'])) {
-        $ext = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
-        $photo_path = 'uploads/students/' . $admission_number . '.' . $ext;
-        move_uploaded_file($_FILES['photo']['tmp_name'], '../' . $photo_path);
-    }
-    $stmt = $pdo->prepare('UPDATE students SET admission_number=?, full_name=?, class_id=?, stream=?, photo_path=?, dob=?, gender=?, parent_name=?, parent_phone=?, address=? WHERE id=?');
-    try {
-        $stmt->execute([$admission_number, $full_name, $class_id, $stream, $photo_path, $dob, $gender, $parent_name, $parent_phone, $address, $id]);
-        $success = 'Student updated successfully!';
-        // Refresh student data
-        $stmt = $pdo->prepare('SELECT * FROM students WHERE id = ?');
-        $stmt->execute([$id]);
-        $student = $stmt->fetch();
-    } catch (PDOException $e) {
-        $error = 'Error: ' . $e->getMessage();
+    
+    // Check if admission number already exists (excluding current student)
+    $check_stmt = $pdo->prepare('SELECT id FROM students WHERE admission_number = ? AND id != ?');
+    $check_stmt->execute([$admission_number, $id]);
+    if ($check_stmt->fetch()) {
+        $error = 'Error: Admission number "' . htmlspecialchars($admission_number) . '" already exists. Please use a different admission number.';
+    } else {
+        $photo_path = $student['photo_path'];
+        if (!empty($_FILES['photo']['name'])) {
+            $ext = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
+            $photo_path = 'uploads/students/' . $admission_number . '.' . $ext;
+            move_uploaded_file($_FILES['photo']['tmp_name'], '../' . $photo_path);
+        }
+        $stmt = $pdo->prepare('UPDATE students SET admission_number=?, full_name=?, class_id=?, stream=?, photo_path=?, dob=?, gender=?, parent_name=?, parent_phone=?, address=? WHERE id=?');
+        try {
+            $stmt->execute([$admission_number, $full_name, $class_id, $stream, $photo_path, $dob, $gender, $parent_name, $parent_phone, $address, $id]);
+            $success = 'Student updated successfully!';
+            // Refresh student data
+            $stmt = $pdo->prepare('SELECT * FROM students WHERE id = ?');
+            $stmt->execute([$id]);
+            $student = $stmt->fetch();
+        } catch (PDOException $e) {
+            $error = 'Error: ' . $e->getMessage();
+        }
     }
 }
 ?>
@@ -75,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="mb-3">
             <label class="form-label">Photo</label><br>
             <?php if ($student['photo_path']): ?>
-                <img src="/<?php echo $student['photo_path']; ?>" alt="Photo" style="width:60px; height:60px; object-fit:cover; border-radius:50%; margin-bottom:10px;">
+                <img src="../<?php echo $student['photo_path']; ?>" alt="Photo" style="width:60px; height:60px; object-fit:cover; border-radius:50%; margin-bottom:10px;">
             <?php endif; ?>
             <input type="file" name="photo" class="form-control">
         </div>

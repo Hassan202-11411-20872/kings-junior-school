@@ -63,7 +63,7 @@ $students = $stmt->fetchAll();
             <tbody>
                 <?php foreach ($students as $student): ?>
                 <tr>
-                    <td><img src="/<?php echo $student['photo_path'] ?: 'assets/images/logo-e.png'; ?>" alt="Photo" style="width:40px; height:40px; object-fit:cover; border-radius:50%;"></td>
+                    <td><img src="../<?php echo $student['photo_path'] ?: 'assets/images/logo-e.png'; ?>" alt="Photo" style="width:40px; height:40px; object-fit:cover; border-radius:50%;"></td>
                     <td><?php echo htmlspecialchars($student['admission_number']); ?></td>
                     <td><?php echo htmlspecialchars($student['full_name']); ?></td>
                     <td><?php echo htmlspecialchars($student['class_name']); ?></td>
