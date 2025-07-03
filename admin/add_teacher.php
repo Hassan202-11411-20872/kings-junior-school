@@ -20,6 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+<div class="no-print my-3">
+    <a href="teachers.php" class="btn btn-secondary">&larr; Back to Teachers</a>
+</div>
 <div class="container py-5">
     <h2 class="mb-4 text-primary">Add Teacher Assignment</h2>
     <?php if ($error): ?><div class="alert alert-danger"><?php echo $error; ?></div><?php endif; ?>
