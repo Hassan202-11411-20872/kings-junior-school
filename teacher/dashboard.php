@@ -20,8 +20,16 @@ if ($teacher && $teacher['class_id']) {
     $class = $class->fetch();
     $assigned_class = $class['class_name'] . ' (' . $class['section'] . ')';
 }
+// Fetch full name of the logged-in user
+$user = $pdo->prepare('SELECT full_name FROM users WHERE id = ?');
+$user->execute([$user_id]);
+$user = $user->fetch();
+$full_name = $user ? $user['full_name'] : '';
 ?>
 <div class="container py-5">
+    <div class="mb-4">
+        <h4 class="text-success">Welcome Back Tr. <?php echo htmlspecialchars($full_name); ?>!</h4>
+    </div>
     <h2 class="mb-4 text-primary">Teacher Dashboard</h2>
     <div class="row g-4 mb-4">
         <div class="col-md-4">

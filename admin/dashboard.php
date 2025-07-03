@@ -8,7 +8,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 <?php
 include '../includes/header.php';
 require_once '../includes/db.php';
-
+// Fetch full name of the logged-in user
+$user_id = $_SESSION['user_id'];
+$user = $pdo->prepare('SELECT full_name FROM users WHERE id = ?');
+$user->execute([$user_id]);
+$user = $user->fetch();
+$full_name = $user ? $user['full_name'] : '';
 // Get counts
 $students = $pdo->query('SELECT COUNT(*) FROM students')->fetchColumn();
 $teachers = $pdo->query('SELECT COUNT(*) FROM teachers')->fetchColumn();
@@ -17,6 +22,9 @@ $subjects = $pdo->query('SELECT COUNT(*) FROM subjects')->fetchColumn();
 $terms = $pdo->query('SELECT COUNT(*) FROM terms')->fetchColumn();
 ?>
 <div class="container py-5">
+    <div class="mb-4">
+        <h4 class="text-success">Welcome Back Tr. <?php echo htmlspecialchars($full_name); ?>!</h4>
+    </div>
     <h2 class="mb-4 text-primary">Admin Dashboard</h2>
     <div class="no-print text-end my-3">
         <a href="../logout.php" class="btn btn-danger">Logout</a>
