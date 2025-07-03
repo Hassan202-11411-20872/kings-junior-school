@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($_FILES['photo']['name'])) {
         $ext = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
         $photo_path = 'uploads/students/' . $admission_number . '.' . $ext;
-        move_uploaded_file($_FILES['photo']['tmp_name'], '../../' . $photo_path);
+        move_uploaded_file($_FILES['photo']['tmp_name'], '../' . $photo_path);
     }
     $stmt = $pdo->prepare('INSERT INTO students (admission_number, full_name, class_id, stream, photo_path, dob, gender, parent_name, parent_phone, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
     try {
