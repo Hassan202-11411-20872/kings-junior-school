@@ -14,6 +14,7 @@ $students = $pdo->query('SELECT COUNT(*) FROM students')->fetchColumn();
 $teachers = $pdo->query('SELECT COUNT(*) FROM teachers')->fetchColumn();
 $classes = $pdo->query('SELECT COUNT(*) FROM classes')->fetchColumn();
 $subjects = $pdo->query('SELECT COUNT(*) FROM subjects')->fetchColumn();
+$terms = $pdo->query('SELECT COUNT(*) FROM terms')->fetchColumn();
 ?>
 <div class="container py-5">
     <h2 class="mb-4 text-primary">Admin Dashboard</h2>
@@ -53,6 +54,14 @@ $subjects = $pdo->query('SELECT COUNT(*) FROM subjects')->fetchColumn();
                 </div>
             </div>
         </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Terms</h5>
+                    <p class="display-6 fw-bold text-primary"><?php echo $terms; ?></p>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="row g-4">
         <div class="col-md-3">
@@ -66,6 +75,9 @@ $subjects = $pdo->query('SELECT COUNT(*) FROM subjects')->fetchColumn();
         </div>
         <div class="col-md-3">
             <a href="subjects.php" class="btn btn-primary w-100 py-3">Manage Subjects</a>
+        </div>
+        <div class="col-md-3">
+            <a href="terms.php" class="btn btn-primary w-100 py-3">Manage Terms</a>
         </div>
         <div class="col-md-3 mt-3">
             <a href="marks.php" class="btn btn-outline-primary w-100 py-3">Enter/View Marks</a>
