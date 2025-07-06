@@ -1,5 +1,17 @@
 <?php
-require_once __DIR__ . '/../config.php';
+// Check if config file exists
+$config_path = __DIR__ . '/../config.php';
+if (!file_exists($config_path)) {
+    die("ERROR: config.php file not found at: " . $config_path . "<br>Please make sure config.php exists in the root directory.");
+}
+
+// Include config file
+require_once $config_path;
+
+// Check if required variables are defined
+if (!isset($host) || !isset($db) || !isset($user) || !isset($pass)) {
+    die("ERROR: Database configuration variables are missing in config.php<br>Required: \$host, \$db, \$user, \$pass");
+}
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
 $options = [
@@ -11,13 +23,7 @@ $options = [
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (PDOException $e) {
-    // Log error for production
-    error_log("Database connection failed: " . $e->getMessage());
-    
-    // Show user-friendly error
-    if (defined('APP_ENV') && APP_ENV === 'production') {
-        die("Database connection error. Please contact administrator.");
-    } else {
-        throw new PDOException($e->getMessage(), (int)$e->getCode());
-    }
-} 
+    // Show detailed error for debugging
+    die("Database connection failed: " . $e->getMessage() . "<br>Host: $host<br>Database: $db<br>User: $user");
+}
+?> 

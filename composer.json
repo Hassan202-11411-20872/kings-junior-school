@@ -1,0 +1,25 @@
+{
+    "name": "kings-junior-school/sms",
+    "description": "Kings Junior School Management System",
+    "type": "project",
+    "require": {
+        "php": ">=7.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "php -r \"copy('.env.example', '.env');\""
+        ]
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+} 

@@ -96,6 +96,18 @@ $terms = $pdo->query('SELECT COUNT(*) FROM terms')->fetchColumn();
         <div class="col-md-3 mt-3">
             <a href="comments.php" class="btn btn-outline-primary w-100 py-3">Comments</a>
         </div>
+        <div class="col-md-3 mt-3">
+            <a href="reports.php" class="btn btn-success w-100 py-3">Reports</a>
+        </div>
+        <div class="col-md-3 mt-3">
+            <a href="promote_students.php" class="btn btn-warning w-100 py-3">Promote Students</a>
+        </div>
+        <div class="col-md-3 mt-3">
+            <a href="audit_logs.php" class="btn btn-info w-100 py-3">Audit Logs</a>
+        </div>
+        <div class="col-md-3 mt-3">
+            <a href="academic_years.php" class="btn btn-outline-warning w-100 py-3">Academic Years</a>
+        </div>
     </div>
 </div>
 <?php include '../includes/footer.php'; ?> 

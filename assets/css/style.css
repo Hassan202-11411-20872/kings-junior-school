@@ -7,6 +7,12 @@ body {
     min-height: 100vh;
     margin: 0;
     padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+html, body {
+    height: 100%;
 }
 
 .navbar {
@@ -52,7 +58,8 @@ body {
     box-shadow: 0 4px 16px rgba(25, 118, 210, 0.18);
 }
 
-.footer {
+/* .footer {
+    margin-top: auto;
     background: linear-gradient(90deg, #1976d2 0%, #42a5f5 100%);
     color: #fff;
     border-radius: 40px 40px 0 0;
@@ -60,7 +67,7 @@ body {
     letter-spacing: 1px;
     box-shadow: 0 -4px 24px rgba(25, 118, 210, 0.1);
     animation: fadeInUp 1s;
-}
+} */
 
 .about-section {
     background: #f5faff;

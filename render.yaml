@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: kings-junior-school
+    env: php
+    buildCommand: composer install
+    startCommand: vendor/bin/heroku-php-apache2 public/
+    envVars:
+      - key: PHP_VERSION
+        value: 8.1
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+    healthCheckPath: /
+    autoDeploy: true 

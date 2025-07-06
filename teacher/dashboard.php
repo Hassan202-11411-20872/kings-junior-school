@@ -49,6 +49,9 @@ $full_name = $user ? $user['full_name'] : '';
         <div class="col-md-4 mt-3">
             <a href="reports.php" class="btn btn-outline-primary w-100 py-3">Generate Reports</a>
         </div>
+        <div class="col-md-4">
+            <a href="print_report.php" class="btn btn-success">Print Report Card</a>
+        </div>
     </div>
     <div class="no-print text-end my-3">
         <a href="../logout.php" class="btn btn-danger">Logout</a>

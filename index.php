@@ -3,7 +3,7 @@ include 'includes/header.php';
 ?>
 <!-- Hero Section -->
 <div class="hero-section text-center py-5 position-relative" style="overflow:hidden;">
-    <img src="assets/images/logo-e.png" alt="School Logo" style="width:120px; animation: bounceIn 1s;">
+    <img src="assets/images/logo.png" alt="Kings Junior School Logo" style="width:120px; animation: bounceIn 1s;">
     <h1 class="display-4 mt-3 fw-bold animated-title">Kings Junior School</h1>
     <h2 class="mb-4 animated-subtitle">Students Report Generation System</h2>
     <a href="login.php" class="btn btn-primary btn-lg mx-2 shadow animated-cta">Login</a>
@@ -58,7 +58,7 @@ include 'includes/header.php';
     <div class="container">
         <div class="row align-items-center">
             <div class="col-md-6 mb-4 mb-md-0">
-                <img src="assets/images/logo-e.png" alt="About" class="img-fluid rounded shadow animated-about-img" style="max-width:300px;">
+                <img src="assets/images/logo.png" alt="Kings Junior School Logo" class="img-fluid rounded shadow animated-about-img" style="max-width:300px;">
             </div>
             <div class="col-md-6">
                 <h3 class="fw-bold mb-3">About Our System</h3>

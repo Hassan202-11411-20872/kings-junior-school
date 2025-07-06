@@ -1,135 +1,142 @@
 # Kings Junior School Management System
 
-A comprehensive PHP-based school management system for Kings Junior School. This system handles student management, teacher administration, grading, and report generation.
+A comprehensive school management system for Kings Junior School, built with PHP and MySQL.
 
 ## Features
 
-- **Student Management**: Add, edit, delete, and manage student records
-- **Teacher Management**: Manage teacher accounts and assignments
-- **Class Management**: Organize classes and streams
-- **Subject Management**: Configure subjects for different classes
-- **Grading System**: Record and manage student marks
-- **Report Generation**: Generate comprehensive student reports
-- **User Authentication**: Secure login system with role-based access
-- **File Upload**: Support for student photos and documents
+- **Student Management**: Add, edit, delete, and track student information
+- **Class Management**: Organize students by classes and streams
+- **Marks Entry**: Record and manage student academic performance
+- **Report Generation**: Generate detailed student reports
+- **Teacher Portal**: Dedicated interface for teachers
+- **Admin Dashboard**: Complete administrative control
+- **Audit Logging**: Track all system activities
+- **Student History**: Track student progression through classes
+- **Session Management**: Day Scholar and Boarding Scholar support
 
-## System Requirements
+## Deployment to Render
 
-- PHP 7.4 or higher
-- MySQL 5.7 or higher / MariaDB 10.2 or higher
-- Web server (Apache/Nginx)
-- PHP extensions: PDO, PDO_MySQL, GD (for image processing)
+### Prerequisites
+- Render account (free tier available)
+- MySQL database (Render provides free MySQL)
 
-## Installation
+### Step 1: Prepare Your Database
 
-### Local Development Setup
+1. **Create a MySQL database on Render:**
+   - Go to [Render Dashboard](https://dashboard.render.com)
+   - Click "New" → "MySQL"
+   - Choose "Free" plan
+   - Note down the database credentials
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/kings-junior-school.git
-   cd kings-junior-school
+2. **Import your database:**
+   - Use the provided `database/kings_junior_school.sql` file
+   - Import via phpMyAdmin or MySQL command line
+
+### Step 2: Deploy to Render
+
+1. **Connect your GitHub repository:**
+   - Push your code to GitHub
+   - In Render Dashboard, click "New" → "Web Service"
+   - Connect your GitHub repository
+
+2. **Configure the deployment:**
+   - **Name**: `kings-junior-school`
+   - **Environment**: `PHP`
+   - **Build Command**: `composer install`
+   - **Start Command**: `vendor/bin/heroku-php-apache2 public/`
+
+3. **Set Environment Variables:**
    ```
-
-2. **Set up the database**
-   - Create a MySQL database named `kings_junior_school`
-   - Import the database schema:
-   ```bash
-   mysql -u root -p kings_junior_school < database/kings_junior_school.sql
-   ```
-
-3. **Configure the application**
-   - Copy `config.php` and modify database credentials if needed
-   - Ensure upload directories are writable:
-   ```bash
-   chmod 755 uploads/
-   chmod 755 uploads/students/
-   ```
-
-4. **Access the application**
-   - Open your web browser and navigate to the project URL
-   - Default admin credentials:
-     - Username: `irene`
-     - Password: `admin123` (change this immediately!)
-
-### Production Deployment
-
-1. **Environment Variables**
-   Set the following environment variables for production:
-   ```bash
-   DB_HOST=your_database_host
-   DB_NAME=your_database_name
-   DB_USER=your_database_user
-   DB_PASS=your_database_password
-   APP_URL=https://your-domain.com
+   DB_HOST=your-mysql-host.render.com
+   DB_NAME=your-database-name
+   DB_USER=your-database-user
+   DB_PASS=your-database-password
    APP_ENV=production
    ```
 
-2. **Security Considerations**
-   - Change default admin password
-   - Use HTTPS in production
-   - Set proper file permissions
-   - Configure backup strategy
+### Step 3: Update Database Configuration
 
-## Project Structure
+Update `includes/db.php` to use environment variables:
 
-```
-kjs/
-├── admin/           # Admin panel files
-├── teacher/         # Teacher panel files
-├── assets/          # CSS, images, and static files
-├── database/        # Database schema and migrations
-├── includes/        # Shared PHP files
-├── uploads/         # File uploads (auto-created)
-├── config.php       # Application configuration
-├── index.php        # Main entry point
-├── login.php        # Authentication
-└── README.md        # This file
+```php
+<?php
+$host = $_ENV['DB_HOST'] ?? 'localhost';
+$dbname = $_ENV['DB_NAME'] ?? 'kings_junior_school';
+$username = $_ENV['DB_USER'] ?? 'root';
+$password = $_ENV['DB_PASS'] ?? '';
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    die("Connection failed: " . $e->getMessage());
+}
+?>
 ```
 
-## User Roles
+## Local Development
 
-### Admin
-- Full system access
-- Manage all users, students, teachers
-- Configure classes, subjects, grading
-- Generate reports
+### Requirements
+- PHP 7.4 or higher
+- MySQL 5.7 or higher
+- Apache/Nginx web server
 
-### Teacher
-- View assigned classes and students
-- Record and manage marks
-- Generate class reports
+### Installation
 
-## Database Schema
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/your-username/kings-junior-school.git
+   cd kings-junior-school
+   ```
 
-The system uses the following main tables:
-- `users` - User accounts and authentication
-- `students` - Student information
-- `teachers` - Teacher profiles and assignments
-- `classes` - Class and stream management
-- `subjects` - Subject configuration
-- `marks` - Student grades and assessments
-- `grading_scale` - Grading system configuration
+2. **Set up the database:**
+   - Create a MySQL database
+   - Import `database/kings_junior_school.sql`
 
-## Contributing
+3. **Configure database connection:**
+   - Edit `includes/db.php` with your database credentials
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+4. **Set up web server:**
+   - Point your web server to the project directory
+   - Ensure PHP and MySQL are installed
 
-## License
+## Default Login Credentials
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+### Admin Account
+- **Username**: `irene`
+- **Password**: `admin123`
+
+### Teacher Account
+- **Username**: `silvia`
+- **Password**: `teacher123`
+
+## File Structure
+
+```
+kings-junior-school/
+├── admin/              # Admin panel files
+├── teacher/            # Teacher portal files
+├── includes/           # Shared PHP files
+├── assets/            # CSS, JS, images
+├── database/          # SQL files
+├── uploads/           # Student photos
+├── public/            # Public entry point
+└── README.md          # This file
+```
+
+## Security Features
+
+- Password hashing with bcrypt
+- Session management
+- SQL injection prevention
+- XSS protection
+- Audit logging
+- Role-based access control
 
 ## Support
 
-For support and questions, please contact the development team or create an issue on GitHub.
+For technical support or questions, please contact the development team.
 
-## Changelog
+## License
 
-### Version 1.0.0
-- Initial release
-- Basic school management functionality
-- User authentication system
-- Report generation capabilities 
+This project is proprietary software for Kings Junior School. 

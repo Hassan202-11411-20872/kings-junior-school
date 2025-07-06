@@ -15,38 +15,40 @@ $classes = $pdo->query('SELECT * FROM classes')->fetchAll();
 $error = '';
 $success = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $admission_number = trim($_POST['admission_number']);
-    $full_name = trim($_POST['full_name']);
-    $class_id = $_POST['class_id'];
-    $stream = trim($_POST['stream']);
-    $dob = $_POST['dob'];
-    $gender = $_POST['gender'];
-    $parent_name = trim($_POST['parent_name']);
-    $parent_phone = trim($_POST['parent_phone']);
-    $address = trim($_POST['address']);
-    
-    // Check if admission number already exists (excluding current student)
-    $check_stmt = $pdo->prepare('SELECT id FROM students WHERE admission_number = ? AND id != ?');
-    $check_stmt->execute([$admission_number, $id]);
-    if ($check_stmt->fetch()) {
-        $error = 'Error: Admission number "' . htmlspecialchars($admission_number) . '" already exists. Please use a different admission number.';
+    $school_pay_number = trim($_POST['school_pay_number']);
+    // Validate format: 10-digit numeric code
+    if (!preg_match('/^\d{10}$/', $school_pay_number)) {
+        $error = 'School Pay Number must be a 10-digit numeric code (e.g., 1009603679).';
     } else {
-        $photo_path = $student['photo_path'];
-        if (!empty($_FILES['photo']['name'])) {
-            $ext = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
-            $photo_path = 'uploads/students/' . $admission_number . '.' . $ext;
-            move_uploaded_file($_FILES['photo']['tmp_name'], '../' . $photo_path);
-        }
-        $stmt = $pdo->prepare('UPDATE students SET admission_number=?, full_name=?, class_id=?, stream=?, photo_path=?, dob=?, gender=?, parent_name=?, parent_phone=?, address=? WHERE id=?');
-        try {
-            $stmt->execute([$admission_number, $full_name, $class_id, $stream, $photo_path, $dob, $gender, $parent_name, $parent_phone, $address, $id]);
-            $success = 'Student updated successfully!';
-            // Refresh student data
-            $stmt = $pdo->prepare('SELECT * FROM students WHERE id = ?');
-            $stmt->execute([$id]);
-            $student = $stmt->fetch();
-        } catch (PDOException $e) {
-            $error = 'Error: ' . $e->getMessage();
+        $full_name = trim($_POST['full_name']);
+        $class_id = $_POST['class_id'];
+        $stream = trim($_POST['stream']);
+        $dob = $_POST['dob'];
+        $gender = $_POST['gender'];
+        $session = $_POST['session'];
+        // Check if school pay number already exists (excluding current student)
+        $check_stmt = $pdo->prepare('SELECT id FROM students WHERE school_pay_number = ? AND id != ?');
+        $check_stmt->execute([$school_pay_number, $id]);
+        if ($check_stmt->fetch()) {
+            $error = 'Error: School Pay Number "' . htmlspecialchars($school_pay_number) . '" already exists. Please use a different code.';
+        } else {
+            $photo_path = $student['photo_path'];
+            if (!empty($_FILES['photo']['name'])) {
+                $ext = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
+                $photo_path = 'uploads/students/' . $student['admission_number'] . '.' . $ext;
+                move_uploaded_file($_FILES['photo']['tmp_name'], '../' . $photo_path);
+            }
+            $stmt = $pdo->prepare('UPDATE students SET school_pay_number=?, full_name=?, class_id=?, stream=?, photo_path=?, dob=?, gender=?, session=? WHERE id=?');
+            try {
+                $stmt->execute([$school_pay_number, $full_name, $class_id, $stream, $photo_path, $dob, $gender, $session, $id]);
+                $success = 'Student updated successfully!';
+                // Refresh student data
+                $stmt = $pdo->prepare('SELECT * FROM students WHERE id = ?');
+                $stmt->execute([$id]);
+                $student = $stmt->fetch();
+            } catch (PDOException $e) {
+                $error = 'Error: ' . $e->getMessage();
+            }
         }
     }
 }
@@ -61,7 +63,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <form method="post" enctype="multipart/form-data" class="card p-4 shadow-lg" style="max-width:600px;margin:auto;">
         <div class="mb-3">
             <label class="form-label">Admission Number</label>
-            <input type="text" name="admission_number" class="form-control" value="<?php echo htmlspecialchars($student['admission_number']); ?>" required>
+            <input type="text" name="admission_number" class="form-control" value="<?php echo htmlspecialchars($student['admission_number']); ?>" readonly>
+            <div class="form-text">Admission number is auto-generated and cannot be changed.</div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">School Pay Number</label>
+            <input type="text" name="school_pay_number" class="form-control" value="<?php echo htmlspecialchars($student['school_pay_number']); ?>" required pattern="^\d{10}$" placeholder="1009603679">
+            <div class="form-text">Enter the official 10-digit numeric School Pay Number (e.g., 1009603679).</div>
         </div>
         <div class="mb-3">
             <label class="form-label">Full Name</label>
@@ -100,16 +108,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </select>
         </div>
         <div class="mb-3">
-            <label class="form-label">Parent Name</label>
-            <input type="text" name="parent_name" class="form-control" value="<?php echo htmlspecialchars($student['parent_name']); ?>">
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Parent Phone</label>
-            <input type="text" name="parent_phone" class="form-control" value="<?php echo htmlspecialchars($student['parent_phone']); ?>">
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Address</label>
-            <textarea name="address" class="form-control"><?php echo htmlspecialchars($student['address']); ?></textarea>
+            <label class="form-label">Session</label>
+            <select name="session" class="form-select" required>
+                <option value="Day Scholar" <?php if ($student['session'] == 'Day Scholar') echo 'selected'; ?>>Day Scholar</option>
+                <option value="Boarding Scholar" <?php if ($student['session'] == 'Boarding Scholar') echo 'selected'; ?>>Boarding Scholar</option>
+            </select>
         </div>
         <button type="submit" class="btn btn-primary w-100">Update Student</button>
     </form>

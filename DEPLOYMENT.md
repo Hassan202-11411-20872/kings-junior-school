@@ -1,204 +1,134 @@
-# Deployment Guide
+# Render Deployment Guide
 
-This guide will help you deploy the Kings Junior School Management System to a web hosting service.
+## Step-by-Step Deployment to Render
 
-## Prerequisites
+### Step 1: Prepare Your Code
 
-- A web hosting account with PHP and MySQL support
-- Domain name (optional but recommended)
-- FTP/SFTP access or Git deployment capability
+1. **Ensure all files are committed to GitHub**
+2. **Create the necessary configuration files** (already done):
+   - `render.yaml` - Render configuration
+   - `composer.json` - PHP dependencies
+   - `public/.htaccess` - Apache configuration
+   - `public/index.php` - Entry point
 
-## Deployment Options
+### Step 2: Set Up Database on Render
 
-### Option 1: Shared Hosting (cPanel, etc.)
+1. **Create MySQL Database:**
+   - Go to [Render Dashboard](https://dashboard.render.com)
+   - Click "New" → "MySQL"
+   - Choose "Free" plan
+   - Set database name: `kings_junior_school`
+   - Note down the connection details
 
-1. **Upload Files**
-   - Use FTP/SFTP to upload all project files to your web hosting
-   - Upload to the `public_html` or `www` directory
+2. **Import Database:**
+   - Use the provided `database/kings_junior_school.sql` file
+   - Import via phpMyAdmin or MySQL command line
 
-2. **Database Setup**
-   - Create a MySQL database through your hosting control panel
-   - Import the database schema:
-     ```sql
-     -- Run the contents of database/kings_junior_school.sql
-     ```
+### Step 3: Deploy Web Application
 
-3. **Configuration**
-   - Copy `config.example.php` to `config.php`
-   - Update database credentials in `config.php`
-   - Update `APP_URL` to your domain
+1. **Create Web Service:**
+   - In Render Dashboard, click "New" → "Web Service"
+   - Connect your GitHub repository
+   - Configure as follows:
 
-4. **File Permissions**
-   - Set upload directories to writable (755 or 775)
-   - Ensure `config.php` is readable by the web server
-
-### Option 2: VPS/Dedicated Server
-
-1. **Server Setup**
-   ```bash
-   # Update system
-   sudo apt update && sudo apt upgrade -y
-   
-   # Install LAMP stack
-   sudo apt install apache2 mysql-server php php-mysql php-gd php-mbstring
-   
-   # Enable Apache modules
-   sudo a2enmod rewrite
-   sudo systemctl restart apache2
+2. **Configuration Settings:**
+   ```
+   Name: kings-junior-school
+   Environment: PHP
+   Build Command: composer install
+   Start Command: vendor/bin/heroku-php-apache2 public/
    ```
 
-2. **Database Setup**
-   ```bash
-   # Secure MySQL installation
-   sudo mysql_secure_installation
-   
-   # Create database and user
-   sudo mysql -u root -p
-   CREATE DATABASE kings_junior_school;
-   CREATE USER 'kjs_user'@'localhost' IDENTIFIED BY 'your_secure_password';
-   GRANT ALL PRIVILEGES ON kings_junior_school.* TO 'kjs_user'@'localhost';
-   FLUSH PRIVILEGES;
-   EXIT;
-   
-   # Import database
-   mysql -u kjs_user -p kings_junior_school < database/kings_junior_school.sql
+3. **Environment Variables:**
+   ```
+   DB_HOST=your-mysql-host.render.com
+   DB_NAME=kings_junior_school
+   DB_USER=your-database-user
+   DB_PASS=your-database-password
+   PHP_VERSION=8.1
+   APP_ENV=production
+   APP_DEBUG=false
    ```
 
-3. **Application Deployment**
-   ```bash
-   # Clone repository
-   cd /var/www/html
-   sudo git clone https://github.com/yourusername/kings-junior-school.git
-   sudo chown -R www-data:www-data kings-junior-school
-   
-   # Configure application
-   cd kings-junior-school
-   sudo cp config.example.php config.php
-   sudo nano config.php  # Edit database credentials
-   ```
+### Step 4: Update Database Configuration
 
-4. **Apache Configuration**
-   ```apache
-   # Create /etc/apache2/sites-available/kjs.conf
-   <VirtualHost *:80>
-       ServerName your-domain.com
-       DocumentRoot /var/www/html/kings-junior-school
-       
-       <Directory /var/www/html/kings-junior-school>
-           AllowOverride All
-           Require all granted
-       </Directory>
-       
-       ErrorLog ${APACHE_LOG_DIR}/kjs_error.log
-       CustomLog ${APACHE_LOG_DIR}/kjs_access.log combined
-   </VirtualHost>
-   ```
+**Important:** Update `includes/db.php` to use environment variables:
 
-5. **Enable Site**
-   ```bash
-   sudo a2ensite kjs.conf
-   sudo systemctl reload apache2
-   ```
+```php
+<?php
+$host = $_ENV['DB_HOST'] ?? 'localhost';
+$dbname = $_ENV['DB_NAME'] ?? 'kings_junior_school';
+$username = $_ENV['DB_USER'] ?? 'root';
+$password = $_ENV['DB_PASS'] ?? '';
 
-### Option 3: Cloud Platforms
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    die("Connection failed: " . $e->getMessage());
+}
+?>
+```
 
-#### Heroku
-1. Create a `Procfile`:
-   ```
-   web: vendor/bin/heroku-php-apache2
-   ```
+### Step 5: Test Deployment
 
-2. Set environment variables:
-   ```bash
-   heroku config:set DB_HOST=your_db_host
-   heroku config:set DB_NAME=your_db_name
-   heroku config:set DB_USER=your_db_user
-   heroku config:set DB_PASS=your_db_password
-   heroku config:set APP_URL=https://your-app.herokuapp.com
-   ```
+1. **Wait for deployment to complete**
+2. **Visit your Render URL** (e.g., `https://kings-junior-school.onrender.com`)
+3. **Test login with default credentials:**
+   - Admin: `irene` / `admin123`
+   - Teacher: `silvia` / `teacher123`
 
-#### DigitalOcean App Platform
-1. Connect your GitHub repository
-2. Set environment variables in the dashboard
-3. Configure build settings for PHP
+### Step 6: Configure Custom Domain (Optional)
 
-## Security Checklist
+1. **Add custom domain in Render dashboard**
+2. **Update DNS settings** with your domain provider
+3. **Enable SSL certificate** (automatic with Render)
 
-- [ ] Change default admin password
-- [ ] Use HTTPS (SSL certificate)
-- [ ] Set proper file permissions
-- [ ] Configure firewall rules
-- [ ] Enable automatic backups
-- [ ] Keep PHP and MySQL updated
-- [ ] Use strong database passwords
-- [ ] Configure error logging
+## Free Tier Limitations
 
-## Post-Deployment
+- **Web Service**: 750 hours/month (enough for full-time use)
+- **MySQL Database**: 1GB storage
+- **Bandwidth**: 100GB/month
+- **Build Time**: 500 minutes/month
 
-1. **Test the Application**
-   - Verify all features work correctly
-   - Test file uploads
-   - Check database connections
-   - Verify user authentication
+## Monitoring and Maintenance
 
-2. **Performance Optimization**
-   - Enable PHP OPcache
-   - Configure MySQL query cache
-   - Enable Apache compression
-   - Set up CDN for static assets
-
-3. **Monitoring**
-   - Set up error monitoring
-   - Configure uptime monitoring
-   - Set up database backup automation
-   - Monitor server resources
+1. **Check Render dashboard** for deployment status
+2. **Monitor logs** for any errors
+3. **Set up alerts** for downtime
+4. **Regular backups** of database
 
 ## Troubleshooting
 
-### Common Issues
+### Common Issues:
 
-1. **Database Connection Error**
+1. **Database Connection Failed:**
+   - Check environment variables
    - Verify database credentials
-   - Check if MySQL service is running
-   - Ensure database exists
+   - Ensure database is running
 
-2. **File Upload Issues**
-   - Check directory permissions
-   - Verify PHP upload settings
-   - Check file size limits
+2. **Build Failed:**
+   - Check `composer.json` syntax
+   - Verify PHP version compatibility
+   - Review build logs
 
-3. **404 Errors**
-   - Verify .htaccess file exists
-   - Check Apache rewrite module
-   - Confirm file paths
+3. **Application Not Loading:**
+   - Check start command
+   - Verify file permissions
+   - Review application logs
 
-4. **Permission Denied**
-   - Set proper file ownership
-   - Configure correct permissions
-   - Check SELinux settings (if applicable)
+## Security Considerations
+
+1. **Change default passwords** after first login
+2. **Enable HTTPS** (automatic with Render)
+3. **Regular security updates**
+4. **Monitor audit logs**
 
 ## Support
 
-For deployment issues, check:
-- Hosting provider documentation
-- PHP and MySQL error logs
-- Apache/Nginx error logs
-- Application error logs
+For deployment issues:
+1. Check Render documentation
+2. Review application logs
+3. Contact Render support if needed
 
-## Backup Strategy
-
-1. **Database Backups**
-   ```bash
-   # Daily backup script
-   mysqldump -u username -p database_name > backup_$(date +%Y%m%d).sql
-   ```
-
-2. **File Backups**
-   - Backup uploads directory
-   - Backup configuration files
-   - Use version control for code
-
-3. **Automated Backups**
-   - Set up cron jobs for database backups
-   - Use cloud storage for backup files
-   - Test backup restoration regularly 
+Your school management system will be accessible to your staff worldwide once deployed! 🎉 

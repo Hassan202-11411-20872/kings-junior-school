@@ -44,6 +44,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label class="form-check-label" for="has_streams">Has Streams</label>
         </div>
         <button type="submit" class="btn btn-primary w-100">Add Class</button>
+        <div class="no-print my-3">
+    <a href="dashboard.php" class="btn btn-secondary">&larr; Back to Dashboard</a>
+</div>
     </form>
 </div>
 <?php include '../includes/footer.php'; ?> 

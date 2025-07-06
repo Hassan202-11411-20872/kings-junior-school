@@ -15,6 +15,7 @@ if ($class_id && $term_id) {
 }
 ?>
 <div class="container py-5">
+    <a href="dashboard.php" class="btn btn-secondary mb-3">&larr; Back to Dashboard</a>
     <h2 class="mb-4 text-primary">Report Card Generation</h2>
     <form class="row g-3 mb-4" method="get">
         <div class="col-md-3">

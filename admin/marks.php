@@ -1,4 +1,9 @@
 <?php
+session_start();
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    header('Location: ../login.php');
+    exit;
+}
 include '../includes/header.php';
 require_once '../includes/db.php';
 // Fetch classes and terms
@@ -8,16 +13,37 @@ $class_id = $_GET['class_id'] ?? '';
 $stream = $_GET['stream'] ?? '';
 $term_id = $_GET['term_id'] ?? '';
 $exam_type = $_GET['exam_type'] ?? 'Mid Term';
+$show_all_streams = $_GET['show_all_streams'] ?? false;
 $subjects = [];
 $students = [];
+
 if ($class_id && $term_id) {
     $subjects = $pdo->prepare('SELECT * FROM subjects WHERE class_id = ?');
     $subjects->execute([$class_id]);
     $subjects = $subjects->fetchAll();
-    $students = $pdo->prepare('SELECT * FROM students WHERE class_id = ?' . ($stream ? ' AND stream = ?' : ''));
-    $students->execute($stream ? [$class_id, $stream] : [$class_id]);
+    
+    // Get all students in the class, optionally filtered by stream
+    if ($show_all_streams) {
+        // Show all students regardless of stream
+        $students = $pdo->prepare('SELECT * FROM students WHERE class_id = ? ORDER BY stream, full_name');
+        $students->execute([$class_id]);
+    } else {
+        // Show only specific stream
+        $students = $pdo->prepare('SELECT * FROM students WHERE class_id = ?' . ($stream ? ' AND stream = ?' : '') . ' ORDER BY full_name');
+        $students->execute($stream ? [$class_id, $stream] : [$class_id]);
+    }
     $students = $students->fetchAll();
 }
+
+// Get available streams for the selected class
+$available_streams = [];
+if ($class_id) {
+    $streams_query = $pdo->prepare('SELECT DISTINCT stream FROM students WHERE class_id = ? AND stream IS NOT NULL AND stream != "" ORDER BY stream');
+    $streams_query->execute([$class_id]);
+    $available_streams = $streams_query->fetchAll(PDO::FETCH_COLUMN);
+}
+// Fetch grading scale for JS
+$grading_scale = $pdo->query('SELECT min_mark, max_mark, remark FROM grading_scale ORDER BY min_mark DESC')->fetchAll();
 // Handle marks submission
 $success = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['marks'])) {
@@ -39,6 +65,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['marks'])) {
     $success = 'Marks saved successfully!';
 }
 ?>
+<script>
+const gradingScale = <?php echo json_encode($grading_scale); ?>;
+window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('input[type="number"][name^="marks"]').forEach(input => {
+        input.addEventListener('input', function() {
+            const score = parseInt(this.value, 10);
+            let remark = '';
+            if (!isNaN(score)) {
+                for (const scale of gradingScale) {
+                    if (score >= scale.min_mark && score <= scale.max_mark) {
+                        remark = scale.remark;
+                        break;
+                    }
+                }
+            }
+            // Find the corresponding remarks input in the same cell
+            const remarksInput = this.parentElement.querySelector('input[type="text"][name^="marks"]');
+            if (remarksInput) {
+                remarksInput.value = remark;
+            }
+        });
+    });
+});
+</script>
 <div class="no-print my-3">
     <a href="dashboard.php" class="btn btn-secondary">&larr; Back to Dashboard</a>
 </div>
@@ -55,9 +105,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['marks'])) {
             </select>
         </div>
         <div class="col-md-2">
-            <input type="text" name="stream" class="form-control" placeholder="Stream (optional)" value="<?php echo htmlspecialchars($stream); ?>">
+            <select name="stream" class="form-select" onchange="this.form.submit()">
+                <option value="">All Streams</option>
+                <?php foreach ($available_streams as $s): ?>
+                    <option value="<?php echo htmlspecialchars($s); ?>" <?php if ($stream == $s) echo 'selected'; ?>><?php echo htmlspecialchars($s); ?></option>
+                <?php endforeach; ?>
+            </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
+            <div class="form-check">
+                <input type="checkbox" name="show_all_streams" value="1" class="form-check-input" id="showAllStreams" <?php if ($show_all_streams) echo 'checked'; ?> onchange="this.form.submit()">
+                <label class="form-check-label" for="showAllStreams">Show All Streams</label>
+            </div>
+        </div>
+        <div class="col-md-2">
             <select name="term_id" class="form-select" required onchange="this.form.submit()">
                 <option value="">Select Term</option>
                 <?php foreach ($terms as $t): ?>
@@ -71,11 +132,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['marks'])) {
                 <option value="End Term" <?php if ($exam_type == 'End Term') echo 'selected'; ?>>End Term</option>
             </select>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-1">
             <button type="submit" class="btn btn-outline-primary w-100">Load</button>
         </div>
     </form>
     <?php if ($class_id && $term_id && $subjects && $students): ?>
+    <?php 
+    $class_name = '';
+    foreach ($classes as $c) {
+        if ($c['id'] == $class_id) {
+            $class_name = $c['class_name'] . ' (' . $c['section'] . ')';
+            break;
+        }
+    }
+    ?>
+    <div class="alert alert-info">
+        <strong>Class:</strong> <?php echo htmlspecialchars($class_name); ?> | 
+        <strong>Students:</strong> <?php echo count($students); ?> | 
+        <strong>Streams:</strong> <?php echo $show_all_streams ? 'All (' . count($available_streams) . ')' : ($stream ? $stream : 'All'); ?> | 
+        <strong>Term:</strong> <?php echo htmlspecialchars($exam_type); ?>
+    </div>
     <form method="post">
         <input type="hidden" name="class_id" value="<?php echo $class_id; ?>">
         <input type="hidden" name="term_id" value="<?php echo $term_id; ?>">
@@ -85,6 +161,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['marks'])) {
                 <thead class="table-primary">
                     <tr>
                         <th>Student</th>
+                        <?php if ($show_all_streams): ?>
+                            <th>Stream</th>
+                        <?php endif; ?>
                         <?php foreach ($subjects as $subject): ?>
                             <th><?php echo htmlspecialchars($subject['subject_name']); ?></th>
                         <?php endforeach; ?>
@@ -92,8 +171,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['marks'])) {
                 </thead>
                 <tbody>
                     <?php foreach ($students as $student): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($student['full_name']); ?></td>
+                    <tr class="<?php echo $show_all_streams && $student['stream'] ? 'table-light' : ''; ?>">
+                        <td>
+                            <strong><?php echo htmlspecialchars($student['full_name']); ?></strong>
+                            <br><small class="text-muted"><?php echo htmlspecialchars($student['admission_number']); ?></small>
+                        </td>
+                        <?php if ($show_all_streams): ?>
+                            <td>
+                                <?php if ($student['stream']): ?>
+                                    <span class="badge bg-info"><?php echo htmlspecialchars($student['stream']); ?></span>
+                                <?php else: ?>
+                                    <span class="text-muted">-</span>
+                                <?php endif; ?>
+                            </td>
+                        <?php endif; ?>
                         <?php foreach ($subjects as $subject): ?>
                         <td style="min-width:120px">
                             <input type="number" name="marks[<?php echo $student['id']; ?>][<?php echo $subject['id']; ?>][score]" class="form-control mb-1" placeholder="Score" min="0" max="<?php echo $subject['max_score']; ?>">
